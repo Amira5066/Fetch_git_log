@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Git Log</title>
+</head>
+<body>
+
+<h1>Git Log</h1>
+<table>
+    <tr>
+        <th>Commit ID</th>
+        <th>Author</th>
+        <th>Date</th>
+        <th>Message</th>
+    </tr>
+    <tr th:each="commit : ${commits}">
+        <td th:text="${commit.id.name}"></td>
+        <td th:text="${commit.authorIdent.name + ' <' + commit.authorIdent.emailAddress + '>'}"></td>
+        <td th:text="${#dates.format(commit.authorIdent.when, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <td th:text="${commit.fullMessage}"></td>
+    </tr>
+</table>
+
+</body>
+</html>
