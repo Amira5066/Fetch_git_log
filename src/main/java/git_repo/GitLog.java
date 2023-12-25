@@ -1,54 +1,60 @@
 package git_repo;
+
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GitLog {
+    public static String tempRepoPath = "E:\\internship tests\\repo_test";
+    private static File tempRepo = new File(tempRepoPath);
 
-    public static Iterable<RevCommit> getLog(String remoteRepoUrl) {
-        String localRepoPath = "E:\\internship tests\\repo_test";
-
-        File file = new File(localRepoPath);
+    public static List<RevCommit> getLog(String remoteRepoUrl) {
         try {
-            FileUtils.deleteDirectory(file);
+            FileUtils.deleteDirectory(tempRepo);
+            return getCommitDetails(cloneGitRepository(remoteRepoUrl));
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            cloneGitRepository(remoteRepoUrl, localRepoPath);
-            return displayGitLog(localRepoPath);
-        } catch (IOException | GitAPIException | URISyntaxException e) {
+            System.err.println("Could not clone delete temporary repo.");
             e.printStackTrace();
         }
         return null;
     }
 
-    private static void cloneGitRepository(String remoteRepoUrl, String localRepoPath) throws GitAPIException, URISyntaxException {
-        CloneCommand cloneCommand = Git.cloneRepository()
-                .setURI(remoteRepoUrl)
-                .setDirectory(new java.io.File(localRepoPath));
-
-        cloneCommand.call();
+    private static Git cloneGitRepository(String remoteRepoUrl) {
+        try {
+            Git git = Git.cloneRepository()
+                    .setURI(remoteRepoUrl)
+                    .setDirectory(tempRepo)
+                    .call();
+            return git;
+        } catch (GitAPIException e) {
+            System.err.println("Could not clone repository.");
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    private static Iterable<RevCommit> displayGitLog(String localRepoPath) throws IOException, GitAPIException {
-        try (Repository repository = new RepositoryBuilder().setGitDir(new java.io.File(localRepoPath + "/.git")).build();
-             Git git = new Git(repository)) {
-
+    private static List<RevCommit> getCommitDetails(Git git) {
+        try {
             LogCommand logCommand = git.log();
             Iterable<RevCommit> commits = logCommand.call();
-
-            return commits;
+            List<RevCommit> commitList = new ArrayList<>();
+            for (RevCommit commit : commits) {
+                commitList.add(commit);
+            }
+            return commitList;
+        } catch (GitAPIException e) {
+            System.err.println("Could not retrieve details of 'git log' command.");
+            e.printStackTrace();
+        } finally {
+            git.close();
         }
+        return null;
     }
 }

@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class GitLogController {
 
     @GetMapping
-    public String showIndex(){
+    public String displayHomePage(){
         return "index";
     }
 
     @PostMapping("/git_log")
-    public String getGitLog(@RequestParam String url, Model model) {
+    public String processGitLog(@RequestParam String url, Model model) {
         model.addAttribute("commits", GitLog.getLog(url));
         return "git_log";
     }
