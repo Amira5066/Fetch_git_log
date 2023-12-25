@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GitLog {
-    public static String tempRepoPath = "E:\\internship tests\\repo_test";
+    public static String tempRepoPath = "./repo_test";
     private static File tempRepoDir = new File(tempRepoPath);
 
     public static List<RevCommit> getLog(String remoteRepoUrl) {
