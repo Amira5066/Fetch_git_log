@@ -13,14 +13,17 @@ import java.util.List;
 
 public class GitLog {
     public static String tempRepoPath = "E:\\internship tests\\repo_test";
-    private static File tempRepo = new File(tempRepoPath);
+    private static File tempRepoDir = new File(tempRepoPath);
 
     public static List<RevCommit> getLog(String remoteRepoUrl) {
         try {
-            FileUtils.deleteDirectory(tempRepo);
-            return getCommitDetails(cloneGitRepository(remoteRepoUrl));
+            FileUtils.deleteDirectory(tempRepoDir);
+            Git tempRepo = cloneGitRepository(remoteRepoUrl);
+            if (tempRepo != null) {
+                return getCommitDetails(tempRepo);
+            }
         } catch (IOException e) {
-            System.err.println("Could not clone delete temporary repo.");
+            System.err.println("Could not clone temporary repo.");
             e.printStackTrace();
         }
         return null;
@@ -30,7 +33,7 @@ public class GitLog {
         try {
             Git git = Git.cloneRepository()
                     .setURI(remoteRepoUrl)
-                    .setDirectory(tempRepo)
+                    .setDirectory(tempRepoDir)
                     .call();
             return git;
         } catch (GitAPIException e) {
@@ -40,9 +43,9 @@ public class GitLog {
         return null;
     }
 
-    private static List<RevCommit> getCommitDetails(Git git) {
+    private static List<RevCommit> getCommitDetails(Git tempRepo) {
         try {
-            LogCommand logCommand = git.log();
+            LogCommand logCommand = tempRepo.log();
             Iterable<RevCommit> commits = logCommand.call();
             List<RevCommit> commitList = new ArrayList<>();
             for (RevCommit commit : commits) {
@@ -53,7 +56,7 @@ public class GitLog {
             System.err.println("Could not retrieve details of 'git log' command.");
             e.printStackTrace();
         } finally {
-            git.close();
+            tempRepo.close();
         }
         return null;
     }
